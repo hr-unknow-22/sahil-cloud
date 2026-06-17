@@ -5,25 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - TG Cloud</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container login-box">
-    <h1>🔐 Access Storage</h1>
-    <input type="password" id="passInput" placeholder="Enter Password">
-    <button onclick="checkLogin()">Unlock</button>
-    <p id="loginMsg" class="msg"></p>
+  <div class="login-container">
+    <div class="glass-card">
+      <div class="logo">☁️ TG Cloud</div>
+      <h2>Welcome Back</h2>
+      <p class="subtitle">Enter credentials to access your storage</p>
+      <form id="loginForm">
+        <div class="input-group">
+          <label>Username</label>
+          <input type="text" id="username" placeholder="e.g. admin" required>
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="login-btn">🔓 Unlock Dashboard</button>
+      </form>
+      <p id="loginMsg" class="msg"></p>
+      <div class="footer">Secure Client-Side Auth • No Server DB</div>
+    </div>
   </div>
-  <script>
-    function checkLogin() {
-      const pass = document.getElementById("passInput").value;
-      // Simple client-side password (Change it if needed)
-      if (pass === "mysecret123") {
-        localStorage.setItem("tg_auth", "true");
-        window.location.href = "dashboard.html";
-      } else {
-        document.getElementById("loginMsg").textContent = "❌ Galat Password!";
-      }
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
