@@ -2,190 +2,85 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Cloud Drive V5</title>
+<title>Dashboard</title>
 
 <style>
 body{
-margin:0;
-font-family:Arial;
-background:linear-gradient(135deg,#0f172a,#020617);
-color:white;
+    background:#111827;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+    padding-top:50px;
 }
 
-.header{
-padding:20px;
-text-align:center;
-font-size:22px;
-font-weight:bold;
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(10px);
-}
-
-.container{
-max-width:750px;
-margin:auto;
-padding:15px;
-}
-
-.card{
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(10px);
-padding:15px;
-margin-top:12px;
-border-radius:15px;
-border:1px solid rgba(255,255,255,0.1);
+.box{
+    width:90%;
+    max-width:500px;
+    margin:auto;
+    background:#1f2937;
+    padding:20px;
+    border-radius:15px;
 }
 
 input,button{
-width:100%;
-padding:12px;
-margin-top:10px;
-border:none;
-border-radius:10px;
-}
-
-input{
-background:#111827;
-color:white;
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
 }
 
 button{
-background:#3b82f6;
-cursor:pointer;
-color:white;
-}
-
-.file{
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:#111827;
-padding:10px;
-margin-top:10px;
-border-radius:10px;
-}
-
-.small{
-font-size:12px;
-opacity:0.7;
-}
-
-a{
-color:#60a5fa;
-font-size:12px;
+    background:#2563eb;
+    color:white;
 }
 </style>
-</head>
 
+</head>
 <body>
 
-<div class="header">☁ Cloud Drive V5 (Mega Style)</div>
+<div class="box">
 
-<div class="container">
+<h2>📁 Telegram Cloud Drive</h2>
 
-<div class="card">
+<input type="file" id="fileInput">
 
-<input id="worker" placeholder="https://sahil.sahilsuthar687.workers.dev/">
-<input type="file" id="file">
-
-<button onclick="upload()">Upload File</button>
+<button onclick="uploadFile()">
+Upload File
+</button>
 
 <p id="status"></p>
 
 </div>
 
-<div class="card">
-
-<input onkeyup="search(this.value)" placeholder="Search files...">
-
-<p id="count">0 files</p>
-
-<button onclick="load()">Refresh</button>
-
-<div id="list"></div>
-
-</div>
-
-</div>
-
 <script>
 
-let W="";
+async function uploadFile(){
 
-async function upload(){
+    let file =
+    document.getElementById("fileInput").files[0];
 
-W=document.getElementById("worker").value;
+    if(!file){
+        alert("Select file first");
+        return;
+    }
 
-let f=document.getElementById("file").files[0];
+    let formData = new FormData();
+    formData.append("file", file);
 
-let form=new FormData();
-form.append("file",f);
+    let res = await fetch(
+    "https://sahil.sahilsuthar687.workers.dev/",
+    {
+        method:"POST",
+        body:formData
+    });
 
-document.getElementById("status").innerText="Uploading...";
+    let data = await res.json();
 
-await fetch(W,{method:"POST",body:form});
+    document.getElementById("status").innerText =
+    "Upload Complete ✅";
 
-document.getElementById("status").innerText="Uploaded ✅";
-
-load();
-
-}
-
-async function load(){
-
-let res=await fetch(W+"/files");
-let data=await res.json();
-
-window.files=data;
-
-document.getElementById("count").innerText=data.length+" files";
-
-render(data);
-
-}
-
-function render(data){
-
-let box=document.getElementById("list");
-box.innerHTML="";
-
-data.forEach(f=>{
-
-let link=`https://api.telegram.org/file/botYOUR_BOT_TOKEN/${f.file_id}`;
-
-box.innerHTML+=`
-<div class="file">
-
-<div>
-<div>${f.name}</div>
-<div class="small">${(f.size/1024).toFixed(1)} KB</div>
-<a href="${link}" target="_blank">Download</a>
-</div>
-
-<div>
-<button onclick="del('${f.id}')">Delete</button>
-</div>
-
-</div>
-`;
-
-});
-
-}
-
-async function del(id){
-await fetch(W+"/delete/"+id);
-load();
-}
-
-function search(t){
-
-let f=window.files.filter(x=>
-x.name.toLowerCase().includes(t.toLowerCase())
-);
-
-render(f);
-
+    console.log(data);
 }
 
 </script>
