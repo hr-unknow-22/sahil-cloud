@@ -1,75 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sahil Cloud</title>
+<title>Login Page</title>
+
 <style>
-body{
-background:#111;
-color:white;
-font-family:Arial;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-.box{
-background:#222;
-padding:20px;
-border-radius:10px;
-width:300px;
+
+.box {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 300px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    text-align: center;
 }
-input{
-width:100%;
-padding:10px;
-margin-top:10px;
+
+h2 {
+    margin-bottom: 20px;
+    color: #333;
 }
-button{
-width:100%;
-padding:10px;
-margin-top:10px;
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background: #2a5298;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #1e3c72;
+}
+
+#error {
+    color: red;
+    margin-top: 10px;
+    font-size: 14px;
 }
 </style>
 </head>
+
 <body>
 
 <div class="box">
-<h2>Sahil Cloud</h2>
+    <h2>Login</h2>
 
-<input type="text" id="user" placeholder="Username">
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
 
-<input type="password" id="pass" placeholder="Password">
+    <button onclick="login()">Login</button>
 
-<button onclick="login()">Login</button>
-
-<p id="msg"></p>
+    <div id="error"></div>
 </div>
 
 <script>
-let attempts=0;
+function login() {
+    let user = document.getElementById("username").value;
+    let pass = document.getElementById("password").value;
 
-function login(){
-
-let user=document.getElementById("user").value;
-let pass=document.getElementById("pass").value;
-
-if(user==="Sahil" && pass==="1234"){
-window.location.href="dashboard.html";
-}
-else{
-
-attempts++;
-
-if(attempts==1){
-document.getElementById("msg").innerHTML="Wrong Password";
-}
-
-if(attempts>=2){
-document.body.style.background="red";
-document.getElementById("msg").innerHTML="WARNING!";
-}
-}
+    // demo credentials
+    if (user === "admin" && pass === "1234") {
+        window.location.href = "dashboard.html";
+    } else {
+        document.getElementById("error").innerText = "Invalid username or password!";
+    }
 }
 </script>
 
