@@ -25,7 +25,7 @@
       <div class="upload-controls">
         <input type="file" id="fileInput" hidden>
         <select id="categorySelect">
-          <option value="Other">📁 Category: Other</option>
+          <option value="Other">📁 Other</option>
           <option value="Work">💼 Work</option>
           <option value="Personal">👤 Personal</option>
           <option value="Media">🎬 Media</option>
@@ -33,12 +33,23 @@
         </select>
         <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
       </div>
+      
+      <!-- Progress Bar -->
+      <div id="progressContainer" class="progress-container" style="display:none;">
+        <div class="progress-bar-bg">
+          <div id="progressBar" class="progress-bar-fill"></div>
+        </div>
+        <span id="progressText" class="progress-text">0%</span>
+      </div>
       <p id="uploadStatus" class="status"></p>
     </div>
 
     <div class="grid-layout">
       <div class="glass-card">
-        <h3>📄 Your Files</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          <h3>📄 Your Files</h3>
+          <button class="clear-btn" onclick="clearLocalList()">🗑️ Clear List</button>
+        </div>
         <div class="filter-bar">
           <button class="filter-btn active" onclick="filterFiles('All')">All</button>
           <button class="filter-btn" onclick="filterFiles('Work')">Work</button>
