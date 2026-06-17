@@ -1,0 +1,20 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+body { background: #f4f6f9; color: #333; padding: 2rem; }
+.container { max-width: 800px; margin: 0 auto; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.login-box { text-align: center; padding: 3rem 2rem; }
+input[type="password"] { padding: 0.6rem; width: 100%; max-width: 250px; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 6px; }
+button { background: #0088cc; color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-size: 0.95rem; }
+button:hover { background: #006699; }
+.logout-btn { background: #e74c3c; }
+.upload-section { text-align: center; margin: 1.5rem 0; padding: 1.5rem; border: 2px dashed #cbd5e1; border-radius: 8px; }
+.status { margin-top: 0.5rem; color: #666; font-size: 0.9rem; }
+.file-list { margin-top: 1rem; }
+.file-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; border-bottom: 1px solid #eee; flex-wrap: wrap; gap: 0.5rem; }
+.f-info { flex: 1; }
+.f-name { font-weight: 500; word-break: break-all; }
+.f-meta { font-size: 0.8rem; color: #777; margin-top: 2px; }
+.f-actions { display: flex; gap: 0.5rem; }
+.btn-view { background: #2ecc71; }
+.btn-down { background: #3498db; }
+.msg { color: #e74c3c; margin-top: 0.5rem; }
