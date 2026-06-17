@@ -1,157 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cloud Drive</title>
+<title>Dashboard</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
 body{
-background:#0f172a;
-color:white;
+    background:#111827;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+    padding-top:50px;
 }
 
-.header{
-height:70px;
-background:#111827;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:0 20px;
-box-shadow:0 0 15px rgba(0,0,0,.3);
+.box{
+    width:90%;
+    max-width:500px;
+    margin:auto;
+    background:#1f2937;
+    padding:20px;
+    border-radius:15px;
 }
 
-.logo{
-font-size:22px;
-font-weight:bold;
-}
-
-.container{
-padding:20px;
-}
-
-.stats{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:15px;
-margin-bottom:20px;
-}
-
-.card{
-background:#1e293b;
-padding:20px;
-border-radius:15px;
-}
-
-.card h3{
-font-size:18px;
-margin-bottom:10px;
-}
-
-.upload-box{
-background:#1e293b;
-padding:20px;
-border-radius:15px;
-margin-bottom:20px;
-}
-
-input[type=file]{
-width:100%;
-padding:12px;
-background:#334155;
-border:none;
-border-radius:10px;
-color:white;
+input,button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
 }
 
 button{
-margin-top:10px;
-padding:12px;
-border:none;
-border-radius:10px;
-background:#2563eb;
-color:white;
-cursor:pointer;
-}
-
-button:hover{
-background:#1d4ed8;
-}
-
-.search{
-width:100%;
-padding:12px;
-background:#334155;
-border:none;
-border-radius:10px;
-color:white;
-margin-bottom:20px;
-}
-
-.files{
-display:flex;
-flex-direction:column;
-gap:10px;
-}
-
-.file{
-background:#1e293b;
-padding:15px;
-border-radius:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.actions button{
-margin-left:5px;
-}
-
-.footer{
-text-align:center;
-padding:20px;
-opacity:.7;
+    background:#2563eb;
+    color:white;
 }
 </style>
+
 </head>
 <body>
 
-<div class="header">
-<div class="logo">☁ Cloud Drive</div>
-<div>Welcome Sahil</div>
-</div>
+<div class="box">
 
-<div class="container">
-
-<div class="stats">
-
-<div class="card">
-<h3>Total Files</h3>
-<p id="totalFiles">0</p>
-</div>
-
-<div class="card">
-<h3>Storage Used</h3>
-<p>-- MB</p>
-</div>
-
-<div class="card">
-<h3>Status</h3>
-<p>Online ✅</p>
-</div>
-
-</div>
-
-<div class="upload-box">
-
-<h2>Upload File</h2>
+<h2>📁 Telegram Cloud Drive</h2>
 
 <input type="file" id="fileInput">
 
@@ -159,156 +49,39 @@ opacity:.7;
 Upload File
 </button>
 
-<p id="uploadStatus"></p>
+<p id="status"></p>
 
-</div>
-
-<input
-type="text"
-class="search"
-placeholder="Search Files..."
-onkeyup="searchFiles(this.value)"
->
-
-<div class="files" id="fileList">
-
-</div>
-
-</div>
-
-<div class="footer">
-Cloud Drive V2
 </div>
 
 <script>
 
-let files=[];
-
-function renderFiles(){
-
-const list=document.getElementById("fileList");
-
-list.innerHTML="";
-
-files.forEach((file,index)=>{
-
-list.innerHTML += `
-<div class="file">
-
-<div>
-📄 ${file}
-</div>
-
-<div class="actions">
-
-<button onclick="downloadFile('${file}')">
-Download
-</button>
-
-<button onclick="deleteFile(${index})">
-Delete
-</button>
-
-</div>
-
-</div>
-`;
-
-});
-
-document.getElementById("totalFiles").innerText=
-files.length;
-
-}
-
 async function uploadFile(){
 
-let file=
-document.getElementById("fileInput").files[0];
+    let file =
+    document.getElementById("fileInput").files[0];
 
-if(!file){
+    if(!file){
+        alert("Select file first");
+        return;
+    }
 
-alert("Select File");
+    let formData = new FormData();
+    formData.append("file", file);
 
-return;
+    let res = await fetch(
+    "https://sahil.sahilsuthar687.workers.dev/",
+    {
+        method:"POST",
+        body:formData
+    });
 
+    let data = await res.json();
+
+    document.getElementById("status").innerText =
+    "Upload Complete ✅";
+
+    console.log(data);
 }
-
-document.getElementById("uploadStatus").innerText=
-"Uploading...";
-
-let formData=new FormData();
-
-formData.append("file",file);
-
-try{
-
-await fetch(
-"PASTE_YOUR_WORKER_URL_HERE",
-{
-method:"POST",
-body:formData
-}
-);
-
-files.push(file.name);
-
-renderFiles();
-
-document.getElementById("uploadStatus").innerText=
-"Upload Success ✅";
-
-}
-catch(e){
-
-document.getElementById("uploadStatus").innerText=
-"Upload Failed ❌";
-
-}
-
-}
-
-function deleteFile(index){
-
-files.splice(index,1);
-
-renderFiles();
-
-}
-
-function downloadFile(name){
-
-alert(
-"Download system will be connected in Worker V2"
-);
-
-}
-
-function searchFiles(text){
-
-const all=document.querySelectorAll(".file");
-
-all.forEach(item=>{
-
-if(
-item.innerText
-.toLowerCase()
-.includes(text.toLowerCase())
-){
-
-item.style.display="flex";
-
-}else{
-
-item.style.display="none";
-
-}
-
-});
-
-}
-
-renderFiles();
 
 </script>
 
