@@ -5,24 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - TG Cloud</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>📦 Telegram Cloud Storage</h1>
+  <div class="dashboard-container">
+    <header class="glass-header">
+      <div class="user-info">
+        <span class="avatar">👤</span>
+        <div>
+          <div class="uname" id="displayUser">Loading...</div>
+          <div class="utime" id="loginTime">--</div>
+        </div>
+      </div>
       <button class="logout-btn" onclick="logout()">🚪 Logout</button>
     </header>
 
-    <div class="upload-section">
-      <input type="file" id="fileInput" hidden>
-      <button class="upload-btn" onclick="document.getElementById('fileInput').click()">📤 Upload File</button>
+    <div class="upload-section glass-card">
+      <h3>📤 Upload New File</h3>
+      <div class="upload-controls">
+        <input type="file" id="fileInput" hidden>
+        <select id="categorySelect">
+          <option value="Other">📁 Category: Other</option>
+          <option value="Work">💼 Work</option>
+          <option value="Personal">👤 Personal</option>
+          <option value="Media">🎬 Media</option>
+          <option value="Docs">📄 Docs</option>
+        </select>
+        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+      </div>
       <p id="uploadStatus" class="status"></p>
     </div>
 
-    <h2>📄 Your Files</h2>
-    <div id="fileList" class="file-list">Loading...</div>
-  </div>
+    <div class="grid-layout">
+      <div class="glass-card">
+        <h3>📄 Your Files</h3>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterFiles('All')">All</button>
+          <button class="filter-btn" onclick="filterFiles('Work')">Work</button>
+          <button class="filter-btn" onclick="filterFiles('Personal')">Personal</button>
+          <button class="filter-btn" onclick="filterFiles('Media')">Media</button>
+        </div>
+        <div id="fileList" class="file-list">Loading...</div>
+      </div>
 
+      <div class="glass-card">
+        <h3>📊 Activity Log</h3>
+        <div id="activityLog" class="log-list">No activity yet.</div>
+      </div>
+    </div>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
