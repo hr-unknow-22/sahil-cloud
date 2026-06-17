@@ -1,5 +1,5 @@
 // 🔗 YAHAN APNA CLOUDFLARE WORKER URL PASTE KARO
-const API_URL = "https://YOUR_WORKER_URL.workers.dev";
+const API_URL = "https://sahilfiles.sahilsuthar687.workers.dev/";
 
 // Auth Check
 if (!localStorage.getItem("tg_auth")) window.location.href = "login.html";
