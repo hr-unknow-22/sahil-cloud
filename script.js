@@ -3,39 +3,26 @@ const API_URL = "https://sahilfiles.sahilsuthar687.workers.dev/";
 const DEFAULT_CREDENTIALS = { username: "admin", password: "mysecret123" };
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Page detection by element existence (URL path independent)
   const loginForm = document.getElementById("loginForm");
   const fileListDiv = document.getElementById("fileList");
   const session = JSON.parse(localStorage.getItem("tg_session") || "null");
 
-  // 🔁 Auto Redirect Logic
-  if (loginForm && session) {
-    window.location.href = "./dashboard.html";
-    return;
-  }
-  if (fileListDiv && !session) {
-    window.location.href = "./login.html";
-    return;
-  }
+  if (loginForm && session) { window.location.href = "./dashboard.html"; return; }
+  if (fileListDiv && !session) { window.location.href = "./login.html"; return; }
 
-  // ================= LOGIN PAGE LOGIC =================
+  // ================= LOGIN =================
   if (loginForm) {
     loginForm.addEventListener("submit", function(e) {
-      e.preventDefault(); // Page reload rokta hai
+      e.preventDefault();
       const user = document.getElementById("username").value.trim();
       const pass = document.getElementById("password").value;
       const msg = document.getElementById("loginMsg");
 
       if (user === DEFAULT_CREDENTIALS.username && pass === DEFAULT_CREDENTIALS.password) {
-        const sessionData = { user, loginTime: new Date().toISOString() };
-        localStorage.setItem("tg_session", JSON.stringify(sessionData));
+        localStorage.setItem("tg_session", JSON.stringify({ user, loginTime: new Date().toISOString() }));
         msg.textContent = "✅ Login Successful! Redirecting...";
         msg.style.color = "#22c55e";
-        
-        // Thoda delay taaki user message dekh sake
-        setTimeout(() => {
-          window.location.href = "./dashboard.html";
-        }, 600);
+        setTimeout(() => window.location.href = "./dashboard.html", 600);
       } else {
         msg.textContent = "❌ Invalid Username or Password!";
         msg.style.color = "#ef4444";
@@ -43,53 +30,91 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ================= DASHBOARD LOGIC =================
+  // ================= DASHBOARD =================
   if (fileListDiv) {
     document.getElementById("displayUser").textContent = session.user;
     document.getElementById("loginTime").textContent = `Logged in: ${new Date(session.loginTime).toLocaleString()}`;
 
-    window.logout = function() {
-      localStorage.removeItem("tg_session");
-      window.location.href = "./login.html";
+    window.logout = () => { localStorage.removeItem("tg_session"); window.location.href = "./login.html"; };
+    window.clearLocalList = () => {
+      if(confirm("List clear ho jayegi. Files Telegram mein safe rahengi. Continue?")) {
+        localStorage.removeItem("tg_files");
+        renderFiles();
+        logActivity("🗑️ Clear", "Local file list cleared");
+      }
     };
 
-    // 📤 Upload Handler
-    document.getElementById("fileInput").addEventListener("change", async function(e) {
+    // 📤 UPLOAD WITH PROGRESS %
+    document.getElementById("fileInput").addEventListener("change", function(e) {
       const file = e.target.files[0];
       if (!file) return;
       const category = document.getElementById("categorySelect").value;
-      const status = document.getElementById("uploadStatus");
-      status.textContent = "⏳ Uploading to Telegram...";
+      const statusEl = document.getElementById("uploadStatus");
+      const progressBar = document.getElementById("progressBar");
+      const progressText = document.getElementById("progressText");
+      const progressContainer = document.getElementById("progressContainer");
+
+      statusEl.textContent = "⏳ Starting upload...";
+      statusEl.style.color = "#94a3b8";
+      progressBar.style.width = "0%";
+      progressText.textContent = "0%";
+      progressContainer.style.display = "flex";
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `${API_URL}/upload`, true);
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          progressBar.style.width = percent + "%";
+          progressText.textContent = percent + "%";
+          statusEl.textContent = `⏳ Uploading: ${percent}%`;
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            if (data.success) {
+              statusEl.textContent = "✅ Upload Successful!";
+              statusEl.style.color = "#22c55e";
+              saveFile({ ...data, category, uploadTime: new Date().toISOString() });
+              logActivity("📤 Upload", `${file.name} (${category})`);
+              renderFiles();
+            } else {
+              statusEl.textContent = "❌ " + (data.message || data.error || "Upload failed");
+              statusEl.style.color = "#ef4444";
+            }
+          } catch {
+            statusEl.textContent = "❌ Invalid server response";
+            statusEl.style.color = "#ef4444";
+          }
+        } else {
+          statusEl.textContent = `❌ Server Error (${xhr.status})`;
+          statusEl.style.color = "#ef4444";
+        }
+        setTimeout(() => progressContainer.style.display = "none", 2000);
+      };
+
+      xhr.onerror = () => {
+        statusEl.textContent = "❌ Network/CORS Error. Check Worker URL.";
+        statusEl.style.color = "#ef4444";
+        progressContainer.style.display = "none";
+      };
 
       const formData = new FormData();
       formData.append("file", file);
-
-      try {
-        const res = await fetch(`${API_URL}/upload`, { method: "POST", body: formData });
-        const data = await res.json();
-        if (data.success) {
-          status.textContent = "✅ Upload Successful!";
-          const fileMeta = { ...data, category, uploadTime: new Date().toISOString() };
-          saveFile(fileMeta);
-          logActivity("📤 Upload", `${file.name} (${category})`);
-          renderFiles();
-        } else {
-          status.textContent = "❌ " + (data.message || data.error || "Upload failed");
-        }
-      } catch (err) {
-        status.textContent = "❌ Network or CORS Error";
-      }
+      xhr.send(formData);
       e.target.value = "";
     });
 
-    // 💾 Save File
+    // 💾 DB FUNCTIONS
     function saveFile(meta) {
       let files = JSON.parse(localStorage.getItem("tg_files") || "[]");
       files.unshift(meta);
       localStorage.setItem("tg_files", JSON.stringify(files));
     }
-
-    // 📊 Activity Logger
     function logActivity(type, detail) {
       let logs = JSON.parse(localStorage.getItem("tg_logs") || "[]");
       logs.unshift({ type, detail, time: new Date().toLocaleString() });
@@ -98,9 +123,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderLogs();
     }
 
-    // 📄 Render & Filter Files
     let currentFilter = "All";
-    window.filterFiles = function(cat) {
+    window.filterFiles = (cat) => {
       currentFilter = cat;
       document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
       event.target.classList.add("active");
@@ -110,11 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderFiles() {
       let files = JSON.parse(localStorage.getItem("tg_files") || "[]");
       if (currentFilter !== "All") files = files.filter(f => f.category === currentFilter);
-
-      if (files.length === 0) {
-        fileListDiv.innerHTML = "<p class='status'>No files found.</p>";
-        return;
-      }
+      if (files.length === 0) { fileListDiv.innerHTML = "<p class='status'>No files found.</p>"; return; }
       fileListDiv.innerHTML = "";
       files.forEach(f => {
         const sizeMB = (f.size / (1024 * 1024)).toFixed(2);
@@ -122,15 +142,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const item = document.createElement("div");
         item.className = "file-item";
         item.innerHTML = `
-          <div class="f-info">
-            <div class="f-name">${f.name} <span class="f-tag">${f.category}</span></div>
-            <div class="f-meta">${sizeMB} MB • ${date}</div>
-          </div>
+          <div class="f-info"><div class="f-name">${f.name} <span class="f-tag">${f.category}</span></div><div class="f-meta">${sizeMB} MB • ${date}</div></div>
           <div class="f-actions">
             <button class="btn-view" onclick="window.open('${API_URL}/view?file_id=${f.file_id}&name=${encodeURIComponent(f.name)}', '_blank')">👁️ View</button>
             <button class="btn-down" onclick="window.open('${API_URL}/download?file_id=${f.file_id}&name=${encodeURIComponent(f.name)}', '_blank')">⬇️ Download</button>
-          </div>
-        `;
+          </div>`;
         fileListDiv.appendChild(item);
       });
     }
